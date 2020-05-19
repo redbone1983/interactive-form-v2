@@ -41,6 +41,9 @@ When the form is initially loaded, we need to update the "Design" and "Color" fi
     colorMenu.selectedIndex = 0;
 
     const colorOptions = document.querySelectorAll('#color option');
+    for (let i = 0; i < colorOptions.length; i++) {
+      colorOptions[i].style.display = 'none';
+    }
     
     const showThemeColors = (regex, colors) => {
       for (let i = 1; i < colors.length; i++) {
