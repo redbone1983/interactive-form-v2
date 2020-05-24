@@ -20,6 +20,8 @@ jobTitles.addEventListener('change', (event) => {
 /*
 When the form is initially loaded, we need to update the "Design" and "Color" fields so that it's clear to the user that they need to select a theme before selecting a color. Use javaScript to:
 */
+
+// T-shirt Info Section
   
   // ● Hide the “Select Theme” `option` element in the “Design” menu.
   const designMenu = document.querySelector('#design');
@@ -62,4 +64,28 @@ When the form is initially loaded, we need to update the "Design" and "Color" fi
       showThemeColors(/I ♥ JS/, colorOptions);
     } 
   });
+
+
+// Register for Activities Section
+
+const checkboxes = document.querySelectorAll('.activities input');
+ 
+// Event listener for Activities checkboxes
+document.querySelector('.activities').addEventListener('change', (event) => {
+  const clicked = event.target;
+  const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
+  for (let i = 0; i < checkboxes.length; i++) {
+    const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
+    if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
+      if (clicked.checked) {
+        checkboxes[i].disabled = true;
+      } else {
+        checkboxes[i].disabled = false;
+      }
+    }
+  }
+  console.log('The activities checkboxes `change` event listener is functional!');
+});
+
+
 
