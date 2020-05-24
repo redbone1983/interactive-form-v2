@@ -69,22 +69,42 @@ When the form is initially loaded, we need to update the "Design" and "Color" fi
 // Register for Activities Section
 
 const checkboxes = document.querySelectorAll('.activities input');
+
+// Handles totalCost tally
+const activities = document.querySelector('.activities');
+const total = document.createElement('p');
+activities.appendChild(total);
+let totalCost = 0;
  
 // Event listener for Activities checkboxes
 document.querySelector('.activities').addEventListener('change', (event) => {
   const clicked = event.target;
   const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
+  const clickedCost = +clicked.getAttribute('data-cost');
+  
+  if (clicked.checked) {
+    totalCost += clickedCost;
+  } else {
+    totalCost -= clickedCost;
+  }
+  total.textContent = `Total: $${totalCost}`;
+  
   for (let i = 0; i < checkboxes.length; i++) {
     const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
+    // const checkboxCost = +checkboxes[i].getAttribute('data-cost');
+
+    // This disables activities that are scheduled at the same time
     if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
       if (clicked.checked) {
         checkboxes[i].disabled = true;
+        checkboxes[i].parentNode.style.textDecoration = "line-through";
       } else {
         checkboxes[i].disabled = false;
+        checkboxes[i].parentNode.style.textDecoration = "none";
       }
-    }
+    } 
   }
-  console.log('The activities checkboxes `change` event listener is functional!');
+  // console.log('The activities checkboxes `change` event listener is functional!');
 });
 
 
