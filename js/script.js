@@ -113,22 +113,22 @@ document.querySelector('.activities').addEventListener('change', (event) => {
   }
 });
 
-// Payment Info Section
-//  Display payment sections based on the payment option chosen in the select menu.
 
-const paymentMenu = document.getElementById('payment');
-const paymentOptions = paymentMenu.options;
+// Payment Section
+const addPaymentSection = () => {
+  //  Display payment sections based on the payment option chosen in the select menu.
+  const paymentMenu = document.getElementById('payment');
+  const paymentOptions = paymentMenu.options;
 
-// The "Credit Card" payment option should be selected by default. 
-paymentMenu.selectedIndex = 1;
+  // The "Credit Card" payment option should be selected by default. 
+  paymentMenu.selectedIndex = 1;
 
+  // Display the `#credit-card` div, and hide the "PayPal" and "Bitcoin" information. Payment option in the select menu should match the payment option displayed on the page.
+  const paymentDivs = document.querySelectorAll('fieldset > div');
 
-// Display the `#credit-card` div, and hide the "PayPal" and "Bitcoin" information. Payment option in the select menu should match the payment option displayed on the page.
-const paymentDivs = document.querySelectorAll('fieldset > div');
-
-const showDefaultPayment = () => {
   // Disable "Select Payment Method" option.
   paymentOptions[0].disabled = true;
+  
   for (let i = 1; i < paymentDivs.length; i++) {
     if (paymentDivs[paymentMenu.selectedIndex] === paymentDivs[i]) {
       paymentDivs[i].style.display = '';
@@ -136,21 +136,20 @@ const showDefaultPayment = () => {
       paymentDivs[i].style.display = 'none';
     }
   }
+
+  // Display payment sections based on the payment option chosen in the select menu.
+  paymentMenu.addEventListener('change', (event) => {
+    for (let i = 1; i < paymentDivs.length; i++) {
+      if (event.target.value.startsWith(paymentDivs[i].className.substr(0, 3))) {
+        paymentDivs[i].style.display = '';
+      } else {
+        paymentDivs[i].style.display = 'none';
+      }
+    }
+  });
 };
 
-showDefaultPayment();
-
-// Display payment sections based on the payment option chosen in the select menu.
-paymentMenu.addEventListener('change', (event) => {
-  for (let i = 1; i < paymentOptions.length; i++) {
-    if (event.target.value.startsWith(paymentDivs[i].className.substr(0, 3))) {
-      paymentDivs[i].style.display = '';
-    } else {
-      paymentDivs[i].style.display = 'none';
-    }
-   }
-});
-
+addPaymentSection();
 
 // Form Validation
 
