@@ -1,7 +1,22 @@
 // Put the first field in the `focus` state
 // Use JavaScript to select the 'Name' input element and place focus on it. Add an “Other” option to the Job Role section
 
+const form = document.querySelector('form');
 const nameInput = document.querySelector('#name');
+
+// Generates and adds an error Msg to section
+const addErrorMsg = (location, msg) => {
+  const position = document.querySelector(location);
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'errmsg';
+  errorDiv.textContent = msg;
+  
+  position.appendChild(errorDiv);
+  let errorMessages = document.querySelectorAll('.errmsg');
+  for (let i = 0; i < errorMessages.length; i++) {
+    errorMessages[i].style.color = 'red';
+  }
+};
 
 nameInput.focus();
 
@@ -88,17 +103,21 @@ const tallyTotal = (clicked, clickedCost) => {
   return totalCost;
 };
 
-// Event listener for Activities checkboxes
-document.querySelector('.activities').addEventListener('change', (event) => {
-  const clicked = event.target;
-  const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
-  const clickedCost = +clicked.getAttribute('data-cost');
+const addActivities = () => {
+  const activities = document.querySelector('.activities');
+  
+  // Event listener for Activities checkboxes
+  activities.addEventListener('change', (event) => {
+    const clicked = event.target;
+    const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
+    const clickedCost = +clicked.getAttribute('data-cost');
   
   // Selects and adds total tally to Activities section
   const total = document.querySelector('.fees');
   total.textContent = `Total: $${tallyTotal(clicked, clickedCost)}`;
   
   for (let i = 0; i < checkboxes.length; i++) {
+    console.log(checkboxes[i]);
     const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
     // This disables activities that are scheduled at the same time
     if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
@@ -112,7 +131,9 @@ document.querySelector('.activities').addEventListener('change', (event) => {
     } 
   }
 });
+};
 
+addActivities();
 
 // Payment Section
 const addPaymentSection = () => {
@@ -151,7 +172,82 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
+nameInput.addEventListener('change', (event) => {
+  if (event.target.value.length > 0) {
+    event.target.style.borderColor = 'white';
+    console.log(`Hello, ${event.target.value}!`);
+  } else {
+    event.target.style.borderColor = 'red';
+    console.log('Please enter your name.');
+  }
+});
+
+
+
+  // 1. Create a variable to store the `.value` of the `email` input and log it out
+
+  const email = document.querySelector('#mail');
+
+  // const isValidEmail = email => {
+  //   return /[^@]+@[^@.]+\.[a-z]+$/i.test(email);
+  // };
+
+  const emailValidator = emailElement => {
+    const emailInput = emailElement.value;
+    // 3. Create a variable to store the .indexOf of the `@` in the email value
+    const atSymbolIndex = emailInput.indexOf('@');
+    
+    // 4. Create a variable to store the .lastIndexOf of the `.` in the email value
+    const dotSymbolIndex = emailInput.lastIndexOf('.');
+    
+    // 5. Log out the two variables above
+    console.log(atSymbolIndex);
+    console.log(dotSymbolIndex );
+    
+    // 5. Create an if/else statement
+    // If the `@` index is greater than one AND the `.` last index is greater than the `@` index + 1, 
+
+    // Set the email's border to white and return true
+    // Else, set the email's border to red and return false
+    if (atSymbolIndex > 1 && dotSymbolIndex > atSymbolIndex + 1) {
+      emailElement.style.borderColor = 'white';
+      return true;
+    } else {
+      emailElement.style.borderColor = 'red';
+      return false;
+    }
+
+  };
+
+  form.addEventListener('submit', (event) => {
+
+    
+    if (!emailValidator(email)) {
+      event.preventDefault();
+      console.log(event.target.firstElementChild);
+      addErrorMsg('fieldset', 'Please enter a valid email address.');
+    } 
+    if (totalCost === 0) {
+      event.preventDefault();
+      addErrorMsg('.activities', 'Please select at least one activity.');
+    } 
+    
+  });
+
+  
+
+
+  
+
+
+
+
+
+
 // Form Validation
+// const addFormValidation = () => {
+
+// };
 
 // Form Validation Messages
 
