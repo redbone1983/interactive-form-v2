@@ -1,24 +1,10 @@
 // Put the first field in the `focus` state
-// Use JavaScript to select the 'Name' input element and place focus on it. Add an “Other” option to the Job Role section
-
+// Use JavaScript to select the 'Name' input element and place focus on it. 
 const form = document.querySelector('form');
 const nameInput = document.querySelector('#name');
 nameInput.focus();
 
-// Generates and adds an error Msg to section
-const addErrorMsg = (location, msg) => {
-  const position = document.querySelector(location);
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'errmsg';
-  errorDiv.textContent = msg;
-  
-  position.appendChild(errorDiv);
-  let errorMessages = document.querySelectorAll('.errmsg');
-  for (let i = 0; i < errorMessages.length; i++) {
-    errorMessages[i].style.color = 'red';
-  }
-};
-
+// Add an “Other” option to the Job Role section
 const otherInput = document.querySelector('#other-title');
 otherInput.style.display = 'none';
 
@@ -31,12 +17,22 @@ jobTitles.addEventListener('change', (event) => {
   }
 });
 
+// Generates and adds an error Msg to section
+const addErrorMsg = (location, msg) => {
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'errmsg';
+  errorDiv.textContent = msg;
+  errorDiv.style.color = 'red';
+  document.querySelector(location).appendChild(errorDiv);
+};
+
 /*
-When the form is initially loaded, we need to update the "Design" and "Color" fields so that it's clear to the user that they need to select a theme before selecting a color. Use javaScript to:
+When the form is initially loaded, we need to update the "Design" and "Color" fields so that it's clear to the user that they need to select a theme before selecting a color. 
+Use javaScript to:
 */
 
 // T-shirt Info Section
-  
+const addTshirtSection = () => {
   // ● Hide the “Select Theme” `option` element in the “Design” menu.
   const designMenu = document.querySelector('#design');
   const selectTheme = designMenu.firstElementChild;
@@ -78,13 +74,12 @@ When the form is initially loaded, we need to update the "Design" and "Color" fi
       showThemeColors(/I ♥ JS/, colorOptions);
     } 
   });
+};
 
-
-// Register for Activities Section
-const checkboxes = document.querySelectorAll('.activities input');
-let totalCost = 0;
+addTshirtSection();
 
 const addTotal = () => {
+  // Selects and adds tally to Activities section
   const activities = document.querySelector('.activities');
   const total = document.createElement('p');
   total.className = 'fees';
@@ -93,58 +88,56 @@ const addTotal = () => {
 
 addTotal();
 
-const tallyTotal = (clicked, clickedCost) => {
+let totalCost = 0;
+const tallyTotal = (clicked) => {
+  
+  const clickedCost = +clicked.getAttribute('data-cost');
+  // Selects and Updates total tally
+  
+  const total = document.querySelector('.fees');
   if (clicked.checked) {
     totalCost += clickedCost;
   } else {
     totalCost -= clickedCost;
   }
+  total.textContent = `Total: $${totalCost}`;
   return totalCost;
 };
 
 const addActivities = () => {
+  // Register for Activities Section
   const activities = document.querySelector('.activities');
+  const checkboxes = document.querySelectorAll('.activities input');
   
   // Event listener for Activities checkboxes
   activities.addEventListener('change', (event) => {
     const clicked = event.target;
     const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
-    const clickedCost = +clicked.getAttribute('data-cost');
-  
-  // Selects and adds total tally to Activities section
-  const total = document.querySelector('.fees');
-  total.textContent = `Total: $${tallyTotal(clicked, clickedCost)}`;
-  
-  for (let i = 0; i < checkboxes.length; i++) {
-    const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
-    // This disables activities that are scheduled at the same time
-    if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
-      if (clicked.checked) {
-        checkboxes[i].disabled = true;
-        checkboxes[i].parentNode.style.textDecoration = "line-through";
-      } else {
-        checkboxes[i].disabled = false;
-        checkboxes[i].parentNode.style.textDecoration = "none";
-      }
-    } 
-  }
-});
+    tallyTotal(clicked);
+
+    for (let i = 0; i < checkboxes.length; i++) {
+      const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
+      // This disables activities that are scheduled at the same time
+      if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
+        if (clicked.checked) {
+          checkboxes[i].disabled = true;
+          checkboxes[i].parentNode.style.textDecoration = "line-through";
+        } else {
+          checkboxes[i].disabled = false;
+          checkboxes[i].parentNode.style.textDecoration = "none";
+        }
+      } 
+    }
+  });
 };
 
 addActivities();
 
 // Payment Section
 const addPaymentSection = () => {
-  //  Display payment sections based on the payment option chosen in the select menu.
   const paymentMenu = document.getElementById('payment');
-
-  // The "Credit Card" payment option should be selected by default. 
   paymentMenu.selectedIndex = 1;
-
-  // Display the `#credit-card` div, and hide the "PayPal" and "Bitcoin" information. Payment option in the select menu should match the payment option displayed on the page.
   const paymentDivs = document.querySelectorAll('fieldset > div');
-
-  // Disable "Select Payment Method" option.
   paymentMenu[0].disabled = true;
 
   for (let i = 1; i < paymentDivs.length; i++) {
@@ -170,119 +163,86 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
-const addOutline = (input, cb, index = 0) => {
-  if (!cb(input, index)) {
+// Form Validation
+const addOutline = (input, cb) => {
+  if (!cb(input)) {
     input.style.borderColor = 'red';
   } else {
     input.style.borderColor = 'white';
   }
 };
 
-const nameInputCheck = input => {
-  let output = false;
-  if (input.length > 0) {
-   output = true;
-  }
-  return output;
+const nameInputCheck = input => input.value.length > 0;
+
+const nameValidator = name => {
+  addOutline(name, nameInputCheck);
+  return nameInputCheck(name);
 };
 
-const nameValidator = input => {
-  addOutline(input, nameInputCheck);
+const emailVerify = email => {
+  const atSymbolIndex = email.value.indexOf('@');
+  const dotSymbolIndex = email.value.lastIndexOf('.');
+  return atSymbolIndex > 1 && dotSymbolIndex > atSymbolIndex + 1 ? true : false; 
 };
 
+const emailValidator = () => {
   // 1. Create a variable to store the `.value` of the `email` input and log it out
   const email = document.querySelector('#mail');
+  addOutline(email, emailVerify);
+  return emailVerify(email);
+};
 
-  // const isValidEmail = email => {
-  //   return /[^@]+@[^@.]+\.[a-z]+$/i.test(email);
-  // };
+const ccNumVerify = input => {
+  return input.value.length > 13 && input.value.length < 16;
+};
 
-  const emailValidator = emailElement => {
-    const emailInput = emailElement.value;
-    // 3. Create a variable to store the .indexOf of the `@` in the email value
-    const atSymbolIndex = emailInput.indexOf('@');
+const ccZipVerify = input => {
+  return input.value.length === 5;
+};
+
+const ccCvvVerify = input => {
+  return input.value.length === 3;
+};
+
+const ccValidator = input => {
+  if (input.id === 'cc-num' && !ccNumVerify(input)) {
+    addErrorMsg('#credit-card', 'Please enter a valid credit card number.');
+    addOutline(input, ccNumVerify);
+  } 
+  if (input.id === 'zip' && !ccZipVerify(input)) {
+    addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
+    addOutline(input, ccZipVerify);
+  } 
+  if (input.id === 'cvv' && !ccCvvVerify(input)) {
+    addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
+    addOutline(input, ccCvvVerify);
+  } 
+};
     
-    // 4. Create a variable to store the .lastIndexOf of the `.` in the email value
-    const dotSymbolIndex = emailInput.lastIndexOf('.');
-    
-    // 5. Log out the two variables above
-    console.log(atSymbolIndex);
-    console.log(dotSymbolIndex );
-    
-    // 5. Create an if/else statement
-    // If the `@` index is greater than one AND the `.` last index is greater than the `@` index + 1, 
-
-    // Set the email's border to white and return true
-    // Else, set the email's border to red and return false
-    if (atSymbolIndex > 1 && dotSymbolIndex > atSymbolIndex + 1) {
-      emailElement.style.borderColor = 'white';
-      return true;
-    } else {
-      emailElement.style.borderColor = 'red';
-      return false;
-    }
-
-  };
-
-  const ccInputCheck = input => {
-    let output = false;
-    if (input.length < 16 && input.length > 13) {
-      output = true;
-    } else if (input === 5) {
-      output = true;
-    } else if (input === 3) {
-      output = true;
-    } else {
-      output = false;
-    }
-    return output;
-  };
-
-  const ccValidator = () => {
+// Form Validation Messages
+form.addEventListener('submit', (event) => {
+  if (!nameValidator(nameInput)) {
+    event.preventDefault();
+    addErrorMsg('fieldset', 'Please enter your fullname.');
+  }
+  if (!emailValidator()) {
+    event.preventDefault();
+    addErrorMsg('fieldset', 'Please enter a valid email address.');
+  } 
+  
+  let total = document.querySelector('.fees').textContent;
+  if (!total.length) {
+    event.preventDefault();
+    addErrorMsg('.activities', 'Please select at least one activity.');
+  } 
+  
+  if (document.getElementById('payment').selectedIndex === 1) {
     const ccInputs = document.querySelectorAll('div > input');
     for (let i = 0; i < ccInputs.length; i++) {
-      addOutline(ccInputs[i], ccInputCheck, i);
+      event.preventDefault();
+      if(!ccValidator(ccInputs[i])){
+        event.preventDefault();
+      }
     }
-  };
-    
-
-  form.addEventListener('submit', (event) => {
-    if (!nameValidator(nameInput)) {
-      event.preventDefault();
-      addErrorMsg('fieldset', 'Please enter your fullname.');
-    }
-
-
-  if (!emailValidator(email)) {
-      event.preventDefault();
-      console.log(event.target.firstElementChild);
-      addErrorMsg('fieldset', 'Please enter a valid email address.');
-    } 
-    if (totalCost === 0) {
-      event.preventDefault();
-      addErrorMsg('.activities', 'Please select at least one activity.');
-    } 
-    if (!ccValidator()) {
-      event.preventDefault();
-      addErrorMsg('#credit-card', 'Please enter a valid credit card number.');
-    }
-    
-  });
-
-  
-
-
-  
-
-
-
-
-
-
-// Form Validation
-// const addFormValidation = () => {
-
-// };
-
-// Form Validation Messages
-
+  } 
+});
