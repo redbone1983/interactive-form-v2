@@ -172,11 +172,11 @@ const addOutline = (input, cb) => {
   }
 };
 
-const nameInputCheck = input => input.value.length > 0;
+const nameVerify = input => input.value.length > 0;
 
 const nameValidator = name => {
-  addOutline(name, nameInputCheck);
-  return nameInputCheck(name);
+  addOutline(name, nameVerify);
+  return nameVerify(name);
 };
 
 const emailVerify = email => {
@@ -205,22 +205,29 @@ const ccCvvVerify = input => {
 };
 
 const ccValidator = input => {
+  let validCC = true;
   if (input.id === 'cc-num' && !ccNumVerify(input)) {
     addErrorMsg('#credit-card', 'Please enter a valid credit card number.');
-    addOutline(input, ccNumVerify);
+    validCC = addOutline(input, ccNumVerify);
   } 
   if (input.id === 'zip' && !ccZipVerify(input)) {
     addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
-    addOutline(input, ccZipVerify);
+    validCC = addOutline(input, ccZipVerify);
   } 
   if (input.id === 'cvv' && !ccCvvVerify(input)) {
     addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
-    addOutline(input, ccCvvVerify);
+    validCC = addOutline(input, ccCvvVerify);
   } 
+  return validCC;
 };
     
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
+  const currentErrors = document.querySelectorAll('.errmsg');
+  for (let i = 0; i < currentErrors.length; i++) {
+    currentErrors[i].style.display = 'none';
+  }
+  
   if (!nameValidator(nameInput)) {
     event.preventDefault();
     addErrorMsg('fieldset', 'Please enter your fullname.');
@@ -230,19 +237,20 @@ form.addEventListener('submit', (event) => {
     addErrorMsg('fieldset', 'Please enter a valid email address.');
   } 
   
-  let total = document.querySelector('.fees').textContent;
-  if (!total.length) {
+  let total = document.querySelector('.fees');
+  
+  if (!total.textContent.length) {
     event.preventDefault();
     addErrorMsg('.activities', 'Please select at least one activity.');
-  } 
+  }
   
   if (document.getElementById('payment').selectedIndex === 1) {
     const ccInputs = document.querySelectorAll('div > input');
     for (let i = 0; i < ccInputs.length; i++) {
-      event.preventDefault();
       if(!ccValidator(ccInputs[i])){
         event.preventDefault();
-      }
+      } 
     }
-  } 
+  }
 });
+
