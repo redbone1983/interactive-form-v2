@@ -22,7 +22,7 @@ const addErrorMsg = (location, msg) => {
   const errorDiv = document.createElement('div');
   errorDiv.className = 'errmsg';
   errorDiv.textContent = msg;
-  errorDiv.style.color = 'red';
+  errorDiv.style.color =  'red';
   document.querySelector(location).appendChild(errorDiv);
 };
 

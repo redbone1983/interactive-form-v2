@@ -2,7 +2,7 @@
   Base Element Styles
 ==================================== */
 
-@import url('https://fonts.googleapis.com/css?family=Nunito|Roboto+Mono');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap');
 
 * {
   box-sizing: border-box;
@@ -11,13 +11,13 @@
 body,
 input,
 button {
-	font-family: 'Nunito', sans-serif;
+	font-family: 'Montserrat', sans-serif;
 }
 
 body {
-  font: 1em/1.5;
-  color: rgba(6, 49, 68, 0.9);
-	background: #CDE0FB;
+  font: 1.5em/1.0;
+  color: rgba(6, 49, 68, 0.781);
+	background: #f8cf49;
 }
 
 header {
@@ -25,13 +25,19 @@ header {
 }
 
 h1 {
-	font-size: 2.5em;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  font-size: 2.5em;
+	/* text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85); */
 	margin: 0;
 }
 
 a {
   text-decoration: none;
+}
+
+.errmsg {
+  font-size: 14px;
+  font-style: italic;
+  padding-bottom: 0.5em;
 }
 
 /* ================================= 
@@ -40,8 +46,8 @@ a {
 
 form {
 	padding: .875em 1.875em 1.875em;
-	background: #9BBEEF;
-	border: 2px solid rgba(8, 63, 87, 0.6);
+	background: #79c2ec;
+	border: 1px solid rgba(10, 73, 100, 0.6);
 	border-radius: 3px;
 }
 
@@ -63,8 +69,8 @@ button {
 
 legend {
 	font-weight: bold;
-	padding-top: .5em;
-	border-top: 2px solid rgba(8, 63, 87, 0.6);
+	padding-top: 1em;
+	border-top: 1px solid rgba(8, 63, 87, 0.6);
 	margin-bottom: 1.125em;
 }
 
@@ -109,7 +115,7 @@ input[type="radio"] {
 button {
 	color: #fff;
 	padding: .55em 1.25em;
-	background: #083f57;
+	background: #4d778f;
 	margin: 1.25em 0 .5em;
 	cursor: pointer;
 	border: 2px solid black;
@@ -118,7 +124,7 @@ button {
 }
 
 button:hover {
-	background: #6F9DDC;
+	background: rgb(74, 206, 63);
 }
 
 input, 
