@@ -26,10 +26,6 @@ const addErrorMsg = (location, msg) => {
   document.querySelector(location).appendChild(errorDiv);
 };
 
-/*
-When the form is initially loaded, we need to update the "Design" and "Color" fields so that it's clear to the user that they need to select a theme before selecting a color. 
-Use javaScript to:
-*/
 
 // T-shirt Info Section
 const addTshirtSection = () => {
@@ -105,11 +101,9 @@ const tallyTotal = (clicked) => {
 };
 
 const addActivities = () => {
-  // Register for Activities Section
   const activities = document.querySelector('.activities');
   const checkboxes = document.querySelectorAll('.activities input');
   
-  // Event listener for Activities checkboxes
   activities.addEventListener('change', (event) => {
     const clicked = event.target;
     const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
@@ -117,7 +111,7 @@ const addActivities = () => {
 
     for (let i = 0; i < checkboxes.length; i++) {
       const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
-      // This disables activities that are scheduled at the same time
+    
       if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
         if (clicked.checked) {
           checkboxes[i].disabled = true;
@@ -148,7 +142,7 @@ const addPaymentSection = () => {
     }
   }
 
-  // Display payment sections based on the payment option chosen in the select menu.
+  // Displays payment sections based on the payment option chosen in the select menu.
   paymentMenu.addEventListener('change', (event) => {
     let paymentOption = event.target.value;
     for (let i = 0; i < paymentDivs.length; i++) {
@@ -165,18 +159,21 @@ addPaymentSection();
 
 // Form Validation
 const addOutline = (input, cb) => {
+  let output;
   if (!cb(input)) {
     input.style.borderColor = 'red';
+    output = false; 
   } else {
     input.style.borderColor = 'white';
+    output = true; 
   }
+  return output;
 };
 
 const nameVerify = input => input.value.length > 0;
 
-const nameValidator = name => {
-  addOutline(name, nameVerify);
-  return nameVerify(name);
+const nameValidator = (name, cb) => {
+  return addOutline(name, cb);
 };
 
 const emailVerify = email => {
@@ -185,54 +182,48 @@ const emailVerify = email => {
   return atSymbolIndex > 1 && dotSymbolIndex > atSymbolIndex + 1 ? true : false; 
 };
 
-const emailValidator = () => {
-  // 1. Create a variable to store the `.value` of the `email` input and log it out
+const emailValidator = cb => {
   const email = document.querySelector('#mail');
-  addOutline(email, emailVerify);
-  return emailVerify(email);
+  return addOutline(email, cb);
 };
 
-const ccNumVerify = input => {
-  return input.value.length > 13 && input.value.length < 16;
-};
+const ccNumVerify = input => input.value.length > 13 && input.value.length < 16;
 
-const ccZipVerify = input => {
-  return input.value.length === 5;
-};
-
-const ccCvvVerify = input => {
-  return input.value.length === 3;
-};
+const ccZipVerify = input => input.value.length === 5; 
+    
+const ccCvvVerify = input => input.value.length === 3;
 
 const ccValidator = input => {
-  let validCC = true;
-  if (input.id === 'cc-num' && !ccNumVerify(input)) {
-    addErrorMsg('#credit-card', 'Please enter a valid credit card number.');
-    validCC = addOutline(input, ccNumVerify);
+  if (input.id === 'cc-num') {
+    if (!addOutline(input, ccNumVerify)) {
+      addErrorMsg('#credit-card', 'Please enter a valid credit card number.');
+    }
+  } else if (input.id === 'zip') {
+    if (!addOutline(input, ccZipVerify)) {
+      addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
+    }
+  } else if (input.id  === 'cvv') {
+    if (!addOutline(input, ccCvvVerify)) {
+      addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
+    }
   } 
-  if (input.id === 'zip' && !ccZipVerify(input)) {
-    addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
-    validCC = addOutline(input, ccZipVerify);
-  } 
-  if (input.id === 'cvv' && !ccCvvVerify(input)) {
-    addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
-    validCC = addOutline(input, ccCvvVerify);
-  } 
-  return validCC;
 };
+
+
     
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
-  const currentErrors = document.querySelectorAll('.errmsg');
+  currentErrors = document.querySelectorAll('.errmsg');
   for (let i = 0; i < currentErrors.length; i++) {
-    currentErrors[i].style.display = 'none';
+    const errParent = currentErrors[i].parentNode;
+    errParent.removeChild(currentErrors[i]);
   }
   
-  if (!nameValidator(nameInput)) {
+  if (!nameValidator(nameInput, nameVerify)) {
     event.preventDefault();
     addErrorMsg('fieldset', 'Please enter your fullname.');
   }
-  if (!emailValidator()) {
+  if (!emailValidator(emailVerify)) {
     event.preventDefault();
     addErrorMsg('fieldset', 'Please enter a valid email address.');
   } 
@@ -247,10 +238,18 @@ form.addEventListener('submit', (event) => {
   if (document.getElementById('payment').selectedIndex === 1) {
     const ccInputs = document.querySelectorAll('div > input');
     for (let i = 0; i < ccInputs.length; i++) {
-      if(!ccValidator(ccInputs[i])){
-        event.preventDefault();
-      } 
+      ccValidator(ccInputs[i]);
     }
-  }
+  } 
+
+  
+  if (currentErrors.length > 0) {
+    console.log(currentErrors.length);
+    event.preventDefault();
+  } 
+
+  
 });
+
+
 
