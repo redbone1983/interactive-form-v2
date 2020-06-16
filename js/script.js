@@ -170,11 +170,8 @@ const addOutline = (input, cb) => {
   return output;
 };
 
-const nameVerify = input => input.value.length > 0;
-
-const nameValidator = (name, cb) => {
-  return addOutline(name, cb);
-};
+const nameVerify = name => name.value.length > 0;
+const nameValidator = (name, cb) => addOutline(name, cb);
 
 const emailVerify = email => {
   const atSymbolIndex = email.value.indexOf('@');
@@ -209,8 +206,6 @@ const ccValidator = input => {
   } 
 };
 
-
-    
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
   currentErrors = document.querySelectorAll('.errmsg');
@@ -220,19 +215,19 @@ form.addEventListener('submit', (event) => {
   }
   
   if (!nameValidator(nameInput, nameVerify)) {
-    event.preventDefault();
     addErrorMsg('fieldset', 'Please enter your fullname.');
+    event.preventDefault();
   }
   if (!emailValidator(emailVerify)) {
-    event.preventDefault();
     addErrorMsg('fieldset', 'Please enter a valid email address.');
+    event.preventDefault();
   } 
   
   let total = document.querySelector('.fees');
   
   if (!total.textContent.length) {
-    event.preventDefault();
     addErrorMsg('.activities', 'Please select at least one activity.');
+    event.preventDefault();
   }
   
   if (document.getElementById('payment').selectedIndex === 1) {
@@ -242,14 +237,7 @@ form.addEventListener('submit', (event) => {
     }
   } 
 
-  
   if (currentErrors.length > 0) {
-    console.log(currentErrors.length);
     event.preventDefault();
   } 
-
-  
 });
-
-
-
