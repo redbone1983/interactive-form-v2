@@ -1,33 +1,77 @@
 // Put the first field in the `focus` state
 // Use JavaScript to select the 'Name' input element and place focus on it. 
 const form = document.querySelector('form');
-const nameInput = document.querySelector('#name');
-nameInput.focus();
+const checkMark = document.createElement('img');
+checkMark.src = 'imgs/greencheck.png';
+checkMark.width = '15';
 
-// Add an “Other” option to the Job Role section
-const otherInput = document.querySelector('#other-title');
-otherInput.style.display = 'none';
-
-const jobTitles = document.querySelector('#title');
-jobTitles.addEventListener('change', (event) => {
-  if (event.target.value === 'other') {
-    otherInput.style.display = '';
-  } else {
-    otherInput.style.display = 'none';
-  }
-});
-
-// Generates and adds an error Msg to section
 const addErrorMsg = (input, msg) => {
   input.setAttribute('placeholder', msg);
-  // errorDiv.className = 'errmsg';
-  // errorDiv.textContent = msg;
-  // errorDiv.style.color =  'red';
-  // document.querySelector(location).appendChild(errorDiv);
 };
 
-addErrorMsg(nameInput, 'Please enter your fullname.');
-// addErrorMsg('fieldset', 'Please enter a valid email address.');
+const inputRegex = {
+  name : /^[a-zA-Z]+ [a-zA-Z]+$/,
+  email : /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  credit : {
+    ccNum: /^(?:[0-9]{12}(?:[0-9]{3})?)$/,
+    zip: /(^\d{5}$)|(^\d{5}-\d{4}$)/,
+    cvv: /^[0-9]{3,4}$/
+  } 
+};
+
+const inputVerify = (input, regex) => {
+  if (!regex.test(input.value)) {
+    input.focus();
+    input.style.borderColor = 'red';
+    return false;
+  } else {
+    input.removeAttribute('placeholder');
+    input.style.borderColor = 'white';
+    input.parentNode.insertBefore(checkMark, input);
+    return true;
+  }
+};
+
+const nameVerify = name => inputVerify(name, inputRegex.name);
+const emailVerify = email => inputVerify(email, inputRegex.email);
+const ccNumVerify = ccNum => inputVerify(ccNum, inputRegex.credit.ccNum);
+const ccZipVerify = zip => inputVerify(zip, inputRegex.credit.zip);
+const ccCvvVerify = cvv => inputVerify(cvv, inputRegex.credit.cvv);
+
+const basicInfoSection = () => {
+  // Name
+  const nameInput = document.querySelector('#name');
+  addErrorMsg(nameInput, 'Please enter your full name');
+  
+  nameInput.addEventListener('keyup', event => {
+    nameVerify(event.target);
+  });
+  
+  // Email
+  const emailInput = document.querySelector('#mail');
+  addErrorMsg(emailInput, 'Please enter a valid email address');
+
+  emailInput.addEventListener('keyup', event => {
+    emailVerify(event.target);
+  });
+  
+  // Job Role
+  
+  // Add an “Other” option to the Job Role section
+  const otherInput = document.querySelector('#other-title');
+  otherInput.style.display = 'none';
+
+  const jobTitles = document.querySelector('#title');
+  jobTitles.addEventListener('change', (event) => {
+    if (event.target.value === 'other') {
+      otherInput.style.display = '';
+    } else {
+      otherInput.style.display = 'none';
+    }
+  });
+};
+
+basicInfoSection();
 
 // T-shirt Info Section
 const addTshirtSection = () => {
@@ -68,7 +112,6 @@ const addTshirtSection = () => {
 
   designMenu.addEventListener('change', (event) => {
     colorSection.style.display = '';
-
     if (event.target.value === 'js puns') {
       colorMenu.selectedIndex = 1;
       showThemeColors(/JS Puns/, colorOptions);
@@ -93,11 +136,10 @@ const addTotal = () => {
 addTotal();
 
 let totalCost = 0;
-const tallyTotal = clicked => {
-  
+const tallyTotal = (clicked) => {
   const clickedCost = +clicked.getAttribute('data-cost');
-  // Selects and Updates total tally
   
+  // Selects and Updates total tally
   const total = document.querySelector('.fees');
   if (clicked.checked) {
     totalCost += clickedCost;
@@ -137,11 +179,38 @@ addActivities();
 
 // Payment Section
 const addPaymentSection = () => {
-  const paymentMenu = document.getElementById('payment');
-  paymentMenu[0].disabled = true;
-  paymentMenu.selectedIndex = 1;
+  const ccNum = document.getElementById('cc-num');
+  const zip = document.getElementById('zip');
+  const cvv = document.getElementById('cvv');
+
+  if (ccNum.value.length === 0) {
+    addErrorMsg(ccNum, 'Please enter a credit card number.');
+  } 
+  if (ccNum.value.length > 13 && ccNum.value.length < 16) {
+    addErrorMsg(ccNum, 'Please enter a number that is between 13 and 16 digits long.');
+  } 
+
+  ccNum.addEventListener('keyup', event => {
+    ccNumVerify(event.target);
+  });
+ 
+  addErrorMsg(zip, 'Please enter a valid 5 digit zipcode');
+  zip.addEventListener('keyup', event => {
+    ccZipVerify(event.target);
+  });
+
+  addErrorMsg(cvv, 'Please enter a valid 3 digit CVV');
+  cvv.addEventListener('keyup', event => {
+    ccCvvVerify(event.target);
+  });
   
+  const paymentMenu = document.getElementById('payment');
+  // Selects credit card as default payment option
+  paymentMenu.selectedIndex = 1;
+
   const paymentDivs = document.querySelectorAll('fieldset > div');
+  paymentMenu[0].disabled = true;
+
   for (let i = 1; i < paymentDivs.length; i++) {
     if (paymentDivs[paymentMenu.selectedIndex] === paymentDivs[i]) {
       paymentDivs[i].style.display = '';
@@ -165,98 +234,41 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
-// Form Validation
-const addOutline = (input, cb) => {
-  if (!cb(input)) {
-    input.style.borderColor = 'red';
-    return false;
-  } else {
-    input.style.borderColor = 'white';
-    return true;
-  }
-};
-
-const nameVerify = name => name.value.length > 0;
-const nameValidator = (name, cb) => addOutline(name, cb);
-
-nameInput.addEventListener('keyup', event => {
-  if (nameValidator(event.target, nameVerify)) {
-    const nameError = document.querySelector('.errmsg');
-    const nameParent = nameError.parentNode;
-    nameParent.removeChild(nameError);
-  } 
-});
-
-const emailVerify = email => {
-  const atSymbolIndex = email.value.indexOf('@');
-  const dotSymbolIndex = email.value.lastIndexOf('.');
-  return atSymbolIndex > 1 && dotSymbolIndex > atSymbolIndex + 1 ? true : false; 
-};
-
-const emailValidator = cb => {
-  const email = document.querySelector('#mail');
-  return addOutline(email, cb);
-};
-
-const ccNumVerify = input => {
-  if (input.value.length === 0) {
-    addErrorMsg('#credit-card', 'Please enter a credit card number.');
-    return false;
-  } 
-  if (input.value.length > 13 && input.value.length < 16) {
-    return true;
-  } else {
-    addErrorMsg('#credit-card', 'Please enter a number that is between 13 and 16 digits long.');
-  }
-};
-
-const ccZipVerify = input => input.value.length === 5; 
-    
-const ccCvvVerify = input => input.value.length === 3;
 
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
-  let currentErrors = document.querySelectorAll('.errmsg');
-  for (let i = 0; i < currentErrors.length; i++) {
-    const errParent = currentErrors[i].parentNode;
-    errParent.removeChild(currentErrors[i]);
-  }
   
-  // Basic Info Validation
   if (!nameValidator(nameInput, nameVerify)) {
     addErrorMsg('fieldset', 'Please enter your fullname.');
     event.preventDefault();
   }
-  if (!emailValidator(emailVerify)) {
+  if (!emailValidator(emailInput, emailVerify)) {
     addErrorMsg('fieldset', 'Please enter a valid email address.');
     event.preventDefault();
   } 
   
-  // Register for Activities
   let total = document.querySelector('.fees');
+  
   if (!total.textContent.length) {
     addErrorMsg('.activities', 'Please select at least one activity.');
     event.preventDefault();
-  } 
-
-  // Payment Info Validation
-  if (document.getElementById('payment').selectedIndex === 1) {
-    const ccPayment = document.querySelectorAll('div > input');
-    ccPayment.forEach( ccInput => {
-      if (ccInput.id === 'cc-num' && !addOutline(ccInput, ccNumVerify)) {
-        event.preventDefault();
-      } else if (ccInput.id === 'zip' && !addOutline(ccInput, ccZipVerify)) {
-        addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
-        event.preventDefault();
-      } else if (ccInput.id === 'cvv' && !addOutline(ccInput, ccCvvVerify)) {
-        addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
-        event.preventDefault();
-      } else {
-        return;
-      }
-    });
-    
-  } 
-
+  }
+  
+    // Payment Info Validation
+    if (document.getElementById('payment').selectedIndex === 1) {
+      const ccPayment = document.querySelectorAll('div > input');
+      ccPayment.forEach( ccInput => {
+        if (ccInput.id === 'cc-num' && !addOutline(ccInput, ccNumVerify)) {
+          event.preventDefault();
+        } else if (ccInput.id === 'zip' && !addOutline(ccInput, ccZipVerify)) {
+          addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
+          event.preventDefault();
+        } else if (ccInput.id === 'cvv' && !addOutline(ccInput, ccCvvVerify)) {
+          addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
+          event.preventDefault();
+        } else {
+          return;
+        }
+      });
+    } 
 });
-
