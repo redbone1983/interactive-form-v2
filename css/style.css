@@ -77,7 +77,13 @@ legend {
 input[type="text"],
 input[type="email"],
 legend {
-	width: 100%;
+  width: 100%;
+}
+
+::placeholder {
+  color: red;
+  font-style: italic;
+  font-weight: normal;
 }
 
 label {
