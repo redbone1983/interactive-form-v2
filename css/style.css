@@ -16,8 +16,8 @@ button {
 
 body {
   font: 1.5em/1.0;
-  color: rgba(6, 49, 68, 0.781);
-	background: #f8cf49;
+  color: rgba(0, 0, 0, 0.781);
+	background: #1885b8;
 }
 
 header {
@@ -34,19 +34,13 @@ a {
   text-decoration: none;
 }
 
-.errmsg {
-  font-size: 14px;
-  font-style: italic;
-  padding-bottom: 0.5em;
-}
-
 /* ================================= 
   Form Element Styles
 ==================================== */
 
 form {
-	padding: .875em 1.875em 1.875em;
-	background: #79c2ec;
+  padding: .875em 1.875em 1.875em;
+  background: #f8cf49;
 	border: 1px solid rgba(10, 73, 100, 0.6);
 	border-radius: 3px;
 }
@@ -80,16 +74,16 @@ legend {
   width: 100%;
 }
 
-::placeholder {
-  color: red;
-  font-style: italic;
-  font-weight: normal;
-}
-
 label {
 	color: #000;
 	display: block;
 	margin-bottom: .5em;
+}
+
+.err {
+  color: #000;
+  font-size: 12px;
+  font-weight: normal;
 }
 
 input,
@@ -102,7 +96,7 @@ input {
 	font-weight: 500;
 	padding: .8em;
 	background: #e9f6fb;
-	border: 2px solid rgb(111, 157, 220);
+	border: 3px solid rgb(111, 157, 220);
 	border-radius: 3px;
 	outline: none;
 }

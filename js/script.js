@@ -1,33 +1,87 @@
 // Put the first field in the `focus` state
 // Use JavaScript to select the 'Name' input element and place focus on it. 
 const form = document.querySelector('form');
-const nameInput = document.querySelector('#name');
-nameInput.focus();
 
-// Add an “Other” option to the Job Role section
-const otherInput = document.querySelector('#other-title');
-otherInput.style.display = 'none';
-
-const jobTitles = document.querySelector('#title');
-jobTitles.addEventListener('change', (event) => {
-  if (event.target.value === 'other') {
-    otherInput.style.display = '';
-  } else {
-    otherInput.style.display = 'none';
-  }
-});
-
-// Generates and adds an error Msg to section
-const addErrorMsg = (input, msg) => {
-  input.setAttribute('placeholder', msg);
-  // errorDiv.className = 'errmsg';
-  // errorDiv.textContent = msg;
-  // errorDiv.style.color =  'red';
-  // document.querySelector(location).appendChild(errorDiv);
+const errMsgs = {
+  'name': 'Please enter your full name',
+  'mail': 'Please enter a valid email',
+  'activities': 'Please select at least one activity',
+  'cc-num': 'Please enter a credit card number.',
+  'zip': 'Please enter a valid 5 digit zipcode',
+  'cvv': 'Please enter a valid 3 digit CVV'
 };
 
-addErrorMsg(nameInput, 'Please enter your fullname.');
-// addErrorMsg('fieldset', 'Please enter a valid email address.');
+console.log('script.js is connected to browser');
+
+// Add default Err message for each input func
+const addDefaultErr = () => {
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach( input => {
+    const errSpan = document.createElement('span');
+    if (input.type !== 'checkbox') {
+      errSpan.className = input.id;
+      errSpan.textContent = errMsgs[`${input.id}`];
+      input.parentNode.insertBefore(errSpan, input);
+    } else {
+      console.log(errMsgs[`${input.parentNode.parentNode.className}`]);
+    }
+  });
+};
+
+addDefaultErr();
+
+const inputRegex = {
+  name : /^[a-zA-Z]+ [a-zA-Z]+$/,
+  email : /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  credit : {
+    ccNum: /^\d{13,16}$/,
+    zip: /(^\d{5}$)|(^\d{5}-\d{4}$)/,
+    cvv: /^[0-9]{3,4}$/
+  } 
+};
+
+const inputVerify = (input, regex) => {
+  const inputErr = document.querySelector(`.${input.id}`);
+  if (!regex.test(input.value)) {
+    // 'show' error message 
+    inputErr.style.display = '';
+    input.style.borderColor = 'red';
+  } else {
+    // 'hide' error message 
+    inputErr.style.display = 'none';
+    input.style.borderColor = 'white';
+  }
+};
+
+const basicInfoSection = () => {
+  const nameInput = document.getElementById('name');
+  nameInput.focus();
+
+  nameInput.addEventListener('keyup', event => {
+    inputVerify(event.target, inputRegex.name);
+  });
+  
+  const emailInput = document.getElementById('mail');
+  
+  emailInput.addEventListener('keyup', event => {
+    inputVerify(event.target, inputRegex.email);
+  });
+  
+  // Add an “Other” option to the Job Role section
+  const otherInput = document.querySelector('#other-title');
+  otherInput.style.display = 'none';
+
+  const jobTitles = document.getElementById('title');
+  jobTitles.addEventListener('change', (event) => {
+    if (event.target.value === 'other') {
+      otherInput.style.display = '';
+    } else {
+      otherInput.style.display = 'none';
+    }
+  });
+};
+
+basicInfoSection();
 
 // T-shirt Info Section
 const addTshirtSection = () => {
@@ -68,7 +122,6 @@ const addTshirtSection = () => {
 
   designMenu.addEventListener('change', (event) => {
     colorSection.style.display = '';
-
     if (event.target.value === 'js puns') {
       colorMenu.selectedIndex = 1;
       showThemeColors(/JS Puns/, colorOptions);
@@ -93,11 +146,10 @@ const addTotal = () => {
 addTotal();
 
 let totalCost = 0;
-const tallyTotal = clicked => {
-  
+const tallyTotal = (clicked) => {
   const clickedCost = +clicked.getAttribute('data-cost');
-  // Selects and Updates total tally
   
+  // Selects and Updates total tally
   const total = document.querySelector('.fees');
   if (clicked.checked) {
     totalCost += clickedCost;
@@ -137,11 +189,29 @@ addActivities();
 
 // Payment Section
 const addPaymentSection = () => {
-  const paymentMenu = document.getElementById('payment');
-  paymentMenu[0].disabled = true;
-  paymentMenu.selectedIndex = 1;
+  const ccNum = document.getElementById('cc-num');
+  const zip = document.getElementById('zip');
+  const cvv = document.getElementById('cvv');
+
+  ccNum.addEventListener('keyup', event => {
+    inputVerify(event.target, inputRegex.credit.ccNum);
+  });
+ 
+  zip.addEventListener('keyup', event => {
+    inputVerify(event.target, inputRegex.credit.zip);
+  });
+
+  cvv.addEventListener('keyup', event => {
+    inputVerify(event.target, inputRegex.credit.cvv);
+  });
   
+  const paymentMenu = document.getElementById('payment');
+  // Selects credit card as default payment option
+  paymentMenu.selectedIndex = 1;
+
   const paymentDivs = document.querySelectorAll('fieldset > div');
+  paymentMenu[0].disabled = true;
+
   for (let i = 1; i < paymentDivs.length; i++) {
     if (paymentDivs[paymentMenu.selectedIndex] === paymentDivs[i]) {
       paymentDivs[i].style.display = '';
@@ -165,98 +235,54 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
-// Form Validation
-const addOutline = (input, cb) => {
-  if (!cb(input)) {
-    input.style.borderColor = 'red';
-    return false;
-  } else {
-    input.style.borderColor = 'white';
-    return true;
-  }
-};
-
-const nameVerify = name => name.value.length > 0;
-const nameValidator = (name, cb) => addOutline(name, cb);
-
-nameInput.addEventListener('keyup', event => {
-  if (nameValidator(event.target, nameVerify)) {
-    const nameError = document.querySelector('.errmsg');
-    const nameParent = nameError.parentNode;
-    nameParent.removeChild(nameError);
-  } 
-});
-
-const emailVerify = email => {
-  const atSymbolIndex = email.value.indexOf('@');
-  const dotSymbolIndex = email.value.lastIndexOf('.');
-  return atSymbolIndex > 1 && dotSymbolIndex > atSymbolIndex + 1 ? true : false; 
-};
-
-const emailValidator = cb => {
-  const email = document.querySelector('#mail');
-  return addOutline(email, cb);
-};
-
-const ccNumVerify = input => {
-  if (input.value.length === 0) {
-    addErrorMsg('#credit-card', 'Please enter a credit card number.');
-    return false;
-  } 
-  if (input.value.length > 13 && input.value.length < 16) {
-    return true;
-  } else {
-    addErrorMsg('#credit-card', 'Please enter a number that is between 13 and 16 digits long.');
-  }
-};
-
-const ccZipVerify = input => input.value.length === 5; 
-    
-const ccCvvVerify = input => input.value.length === 3;
-
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
-  let currentErrors = document.querySelectorAll('.errmsg');
-  for (let i = 0; i < currentErrors.length; i++) {
-    const errParent = currentErrors[i].parentNode;
-    errParent.removeChild(currentErrors[i]);
-  }
-  
-  // Basic Info Validation
-  if (!nameValidator(nameInput, nameVerify)) {
-    addErrorMsg('fieldset', 'Please enter your fullname.');
-    event.preventDefault();
-  }
-  if (!emailValidator(emailVerify)) {
-    addErrorMsg('fieldset', 'Please enter a valid email address.');
-    event.preventDefault();
-  } 
-  
-  // Register for Activities
-  let total = document.querySelector('.fees');
-  if (!total.textContent.length) {
-    addErrorMsg('.activities', 'Please select at least one activity.');
-    event.preventDefault();
-  } 
-
-  // Payment Info Validation
-  if (document.getElementById('payment').selectedIndex === 1) {
-    const ccPayment = document.querySelectorAll('div > input');
-    ccPayment.forEach( ccInput => {
-      if (ccInput.id === 'cc-num' && !addOutline(ccInput, ccNumVerify)) {
-        event.preventDefault();
-      } else if (ccInput.id === 'zip' && !addOutline(ccInput, ccZipVerify)) {
-        addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
-        event.preventDefault();
-      } else if (ccInput.id === 'cvv' && !addOutline(ccInput, ccCvvVerify)) {
-        addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
-        event.preventDefault();
-      } else {
-        return;
-      }
-    });
-    
-  } 
+  // const errMsgs = document.querySelectorAll('span');
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach( input => {
+    if (input.style.borderColor === 'red') {
+      input.parentNode.scrollIntoView();
+      event.preventDefault();
+      
+    }
+  });
 
 });
 
+// Form Validation Messages
+// form.addEventListener('submit', (event) => {
+  
+//   if (!nameValidator(nameInput, nameVerify)) {
+//     addErrorMsg('fieldset', 'Please enter your fullname.');
+//     event.preventDefault();
+//   }
+//   if (!emailValidator(emailInput, emailVerify)) {
+//     addErrorMsg('fieldset', 'Please enter a valid email address.');
+//     event.preventDefault();
+//   } 
+  
+//   let total = document.querySelector('.fees');
+  
+//   if (!total.textContent.length) {
+//     addErrorMsg('.activities', 'Please select at least one activity.');
+//     event.preventDefault();
+//   }
+  
+//     // Payment Info Validation
+//     if (document.getElementById('payment').selectedIndex === 1) {
+//       const ccPayment = document.querySelectorAll('div > input');
+//       ccPayment.forEach( ccInput => {
+//         if (ccInput.id === 'cc-num' && !addOutline(ccInput, ccNumVerify)) {
+//           event.preventDefault();
+//         } else if (ccInput.id === 'zip' && !addOutline(ccInput, ccZipVerify)) {
+//           addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
+//           event.preventDefault();
+//         } else if (ccInput.id === 'cvv' && !addOutline(ccInput, ccCvvVerify)) {
+//           addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
+//           event.preventDefault();
+//         } else {
+//           return;
+//         }
+//       });
+//     } 
+// });
