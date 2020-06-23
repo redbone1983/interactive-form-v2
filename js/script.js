@@ -14,21 +14,32 @@ const errMsgs = {
 console.log('script.js is connected to browser');
 
 // Add default Err message for each input func
-const addDefaultErr = () => {
+const addInputErrs = () => {
   const inputs = document.querySelectorAll('input');
   inputs.forEach( input => {
-    const errSpan = document.createElement('span');
     if (input.type !== 'checkbox') {
+      const errSpan = document.createElement('span');
       errSpan.className = input.id;
+      errSpan.style.color = 'red';
+      errSpan.style.fontSize = '14px';
       errSpan.textContent = errMsgs[`${input.id}`];
       input.parentNode.insertBefore(errSpan, input);
-    } else {
-      console.log(errMsgs[`${input.parentNode.parentNode.className}`]);
-    }
+    } 
   });
 };
 
-addDefaultErr();
+addInputErrs();
+
+const addCheckBoxErr = input => {
+  const firstChild = input.firstElementChild;
+  const errSpan2 = document.createElement('span');
+  errSpan2.id = input.className;
+  errSpan2.style.color = 'red';
+  errSpan2.style.fontSize = '14px';
+  errSpan2.style.marginBottom = '10px';
+  errSpan2.textContent = (errMsgs[`${firstChild.parentNode.className}`]);
+  return firstChild.parentNode.insertBefore(errSpan2, firstChild);
+};
 
 const inputRegex = {
   name : /^[a-zA-Z]+ [a-zA-Z]+$/,
@@ -50,6 +61,16 @@ const inputVerify = (input, regex) => {
     // 'hide' error message 
     inputErr.style.display = 'none';
     input.style.borderColor = 'white';
+  }
+};
+
+const checkBoxVerify = input => {
+  if (totalCost === 0) {
+    input.style.display = '';
+    return false;
+  } else {
+    input.style.display = 'none';
+    return true;
   }
 };
 
@@ -160,10 +181,14 @@ const tallyTotal = (clicked) => {
   return totalCost;
 };
 
+
+
 const addActivities = () => {
   const activities = document.querySelector('.activities');
   const checkboxes = document.querySelectorAll('.activities input');
-  
+
+  let checkSpan = addCheckBoxErr(activities);
+
   activities.addEventListener('change', (event) => {
     const clicked = event.target;
     const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
@@ -182,6 +207,7 @@ const addActivities = () => {
         }
       } 
     }
+    checkBoxVerify(checkSpan);
   });
 };
 
@@ -237,52 +263,15 @@ addPaymentSection();
 
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
-  // const errMsgs = document.querySelectorAll('span');
   const inputs = document.querySelectorAll('input');
   inputs.forEach( input => {
     if (input.style.borderColor === 'red') {
       input.parentNode.scrollIntoView();
       event.preventDefault();
-      
+    } else if (input.type === 'checkbox' && totalCost === 0) {
+      input.parentNode.parentNode.scrollIntoView();
+      event.preventDefault();
     }
   });
-
 });
 
-// Form Validation Messages
-// form.addEventListener('submit', (event) => {
-  
-//   if (!nameValidator(nameInput, nameVerify)) {
-//     addErrorMsg('fieldset', 'Please enter your fullname.');
-//     event.preventDefault();
-//   }
-//   if (!emailValidator(emailInput, emailVerify)) {
-//     addErrorMsg('fieldset', 'Please enter a valid email address.');
-//     event.preventDefault();
-//   } 
-  
-//   let total = document.querySelector('.fees');
-  
-//   if (!total.textContent.length) {
-//     addErrorMsg('.activities', 'Please select at least one activity.');
-//     event.preventDefault();
-//   }
-  
-//     // Payment Info Validation
-//     if (document.getElementById('payment').selectedIndex === 1) {
-//       const ccPayment = document.querySelectorAll('div > input');
-//       ccPayment.forEach( ccInput => {
-//         if (ccInput.id === 'cc-num' && !addOutline(ccInput, ccNumVerify)) {
-//           event.preventDefault();
-//         } else if (ccInput.id === 'zip' && !addOutline(ccInput, ccZipVerify)) {
-//           addErrorMsg('#credit-card', 'Please enter a valid 5 digit zipcode.');
-//           event.preventDefault();
-//         } else if (ccInput.id === 'cvv' && !addOutline(ccInput, ccCvvVerify)) {
-//           addErrorMsg('#credit-card', 'Please enter a valid 3 digit CVV');
-//           event.preventDefault();
-//         } else {
-//           return;
-//         }
-//       });
-//     } 
-// });

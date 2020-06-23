@@ -2,7 +2,7 @@
   Base Element Styles
 ==================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap');
 
 * {
   box-sizing: border-box;
@@ -11,7 +11,7 @@
 body,
 input,
 button {
-	font-family: 'Montserrat', sans-serif;
+	font-family: 'Didact Gothic', sans-serif;
 }
 
 body {
@@ -40,7 +40,7 @@ a {
 
 form {
   padding: .875em 1.875em 1.875em;
-  background: #f8cf49;
+  background: #addaff;
 	border: 1px solid rgba(10, 73, 100, 0.6);
 	border-radius: 3px;
 }
@@ -80,12 +80,6 @@ label {
 	margin-bottom: .5em;
 }
 
-.err {
-  color: #000;
-  font-size: 12px;
-  font-weight: normal;
-}
-
 input,
 select {
 	margin-bottom: 1.125em;	
@@ -115,7 +109,7 @@ input[type="radio"] {
 button {
 	color: #fff;
 	padding: .55em 1.25em;
-	background: #4d778f;
+	background: #6c4d8f;
 	margin: 1.25em 0 .5em;
 	cursor: pointer;
 	border: 2px solid black;
@@ -124,7 +118,7 @@ button {
 }
 
 button:hover {
-	background: rgb(206, 63, 146);
+	background: rgb(173, 50, 122);
 }
 
 input, 
