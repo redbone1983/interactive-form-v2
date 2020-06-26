@@ -6,22 +6,21 @@ const errMsgs = {
   'name': 'Please enter your full name',
   'mail': 'Please enter a valid email',
   'activities': 'Please select at least one activity',
-  'cc-num': 'Please enter a credit card number.',
+  'cc-num': 'Please enter a credit card number between 13 and 16 digits.',
   'zip': 'Please enter a valid 5 digit zipcode',
   'cvv': 'Please enter a valid 3 digit CVV'
 };
-
-console.log('script.js is connected to browser');
 
 // Add default Err message for each input func
 const addInputErrs = () => {
   const inputs = document.querySelectorAll('input');
   inputs.forEach( input => {
-    if (input.type !== 'checkbox') {
+    if (input.type !== 'checkbox' && input.id !== 'other-title') {
       const errSpan = document.createElement('span');
       errSpan.className = input.id;
       errSpan.style.color = 'red';
       errSpan.style.fontSize = '14px';
+      errSpan.style.display = 'none';
       errSpan.textContent = errMsgs[`${input.id}`];
       input.parentNode.insertBefore(errSpan, input);
     } 
@@ -31,36 +30,38 @@ const addInputErrs = () => {
 addInputErrs();
 
 const addCheckBoxErr = input => {
-  const firstChild = input.firstElementChild;
-  const errSpan2 = document.createElement('span');
-  errSpan2.id = input.className;
-  errSpan2.style.color = 'red';
-  errSpan2.style.fontSize = '14px';
-  errSpan2.style.marginBottom = '10px';
-  errSpan2.textContent = (errMsgs[`${firstChild.parentNode.className}`]);
-  return firstChild.parentNode.insertBefore(errSpan2, firstChild);
+  const legend = input.firstElementChild;
+  const checkErr = document.createElement('p');
+  checkErr.id = 'checkErr';
+  checkErr.style.color = 'red';
+  checkErr.style.fontSize = '16px';
+  checkErr.style.paddingBottom = '15px';
+  checkErr.textContent = errMsgs[`${input.parentNode.className}`];
+  checkErr.style.display = 'none';
+  return legend.parentNode.insertBefore(checkErr, legend);
 };
 
 const inputRegex = {
-  name : /^[a-zA-Z]+ [a-zA-Z]+$/,
-  email : /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  credit : {
-    ccNum: /^\d{13,16}$/,
-    zip: /(^\d{5}$)|(^\d{5}-\d{4}$)/,
-    cvv: /^[0-9]{3,4}$/
-  } 
+  'name': /^[a-zA-Z]+ [a-zA-Z]+$/,
+  'mail': /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  'cc-num': /^\d{13,16}$/,
+  'zip': /(^\d{5}$)|(^\d{5}-\d{4}$)/,
+  'cvv': /^[0-9]{3}$/
 };
+
 
 const inputVerify = (input, regex) => {
   const inputErr = document.querySelector(`.${input.id}`);
-  if (!regex.test(input.value)) {
+  if (!regex.test(input.value) || input.value.length === 0) {
     // 'show' error message 
     inputErr.style.display = '';
     input.style.borderColor = 'red';
+    return false;
   } else {
     // 'hide' error message 
     inputErr.style.display = 'none';
     input.style.borderColor = 'white';
+    return true;
   }
 };
 
@@ -79,13 +80,13 @@ const basicInfoSection = () => {
   nameInput.focus();
 
   nameInput.addEventListener('keyup', event => {
-    inputVerify(event.target, inputRegex.name);
+    inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
   
   const emailInput = document.getElementById('mail');
   
   emailInput.addEventListener('keyup', event => {
-    inputVerify(event.target, inputRegex.email);
+    inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
   
   // Add an “Other” option to the Job Role section
@@ -106,53 +107,38 @@ basicInfoSection();
 
 // T-shirt Info Section
 const addTshirtSection = () => {
-  // ● Hide the “Select Theme” `option` element in the “Design” menu.
   const designMenu = document.querySelector('#design');
+  const designOptions = designMenu.options;
+  
+  // Hides the “Select Theme” `option` element in the “Design” menu.
   const selectTheme = designMenu.firstElementChild;
-  selectTheme.hidden = true;
-
-  // ● Update the “Color” field to read “Please select a T-shirt theme”.
+  selectTheme.disabled = true;
+  
   const colorMenu = document.querySelector('#color');
-  let colorOptions = colorMenu.options;
-  const firstOption = colorMenu.firstElementChild;
-
-  const selectColor = document.createElement('option');
-  selectColor.textContent = "Please select a T-shirt theme";
-  colorMenu.insertBefore(selectColor, firstOption);
-  colorMenu.selectedIndex = 0;
-
-  // ● Hide the colors in the “Color” drop down menu.
-  for (let i = 0; i < colorOptions.length; i++) {
-    colorOptions[i].style.display = 'none';
-  }
-
-  const showThemeColors = (regex, colorOptions) => {
-    for (let i = 0; i < colorOptions.length; i++) {
-      let colorString = colorOptions[i].textContent;
-      if (regex.test(colorString)) {
-        colorOptions[i].style.display = '';
-      } else {
-        colorOptions[i].style.display = 'none';
+  const colorOptions = colorMenu.options;
+  
+  const showThemeColors = (theme, colorOptions) => {
+      for (let i = 0; i < colorOptions.length; i++) {
+        if (colorOptions[i].innerText.includes(theme)) {
+          colorMenu.selectedIndex = i;
+          colorOptions[i].style.display = '';
+        } else {
+          colorOptions[i].style.display = 'none';
+        }
       }
-    }
+    };
+
+    colorMenu.style.display = 'none';
+    
+    // Extra Credit #1 - Hide the "Color" label 
+    designMenu.addEventListener('change', (event) => {
+      // Shows menu when design theme is selected
+      colorMenu.style.display = '';
+      let userSelect = designOptions[event.target.selectedIndex];
+      let designTheme = userSelect.innerText.substring(8, 14);
+      showThemeColors(designTheme, colorOptions);
+    });
   };
-
-  // Extra Credit #1 - Hide the "Color" label and select menu until a T-Shirt design is selected from the "Design" menu.
-  const colorSection = document.getElementById('colors-js-puns');
-  colorSection.style.display = 'none';
-
-  designMenu.addEventListener('change', (event) => {
-    colorSection.style.display = '';
-    if (event.target.value === 'js puns') {
-      colorMenu.selectedIndex = 1;
-      showThemeColors(/JS Puns/, colorOptions);
-    } 
-    if (event.target.value === 'heart js') {
-      colorMenu.selectedIndex = 4;
-      showThemeColors(/I ♥ JS/, colorOptions);
-    } 
-  });
-};
 
 addTshirtSection();
 
@@ -181,13 +167,11 @@ const tallyTotal = (clicked) => {
   return totalCost;
 };
 
-
-
 const addActivities = () => {
   const activities = document.querySelector('.activities');
   const checkboxes = document.querySelectorAll('.activities input');
 
-  let checkSpan = addCheckBoxErr(activities);
+  let checkErr = addCheckBoxErr(activities);
 
   activities.addEventListener('change', (event) => {
     const clicked = event.target;
@@ -207,7 +191,7 @@ const addActivities = () => {
         }
       } 
     }
-    checkBoxVerify(checkSpan);
+    checkBoxVerify(checkErr);
   });
 };
 
@@ -220,15 +204,15 @@ const addPaymentSection = () => {
   const cvv = document.getElementById('cvv');
 
   ccNum.addEventListener('keyup', event => {
-    inputVerify(event.target, inputRegex.credit.ccNum);
+    inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
  
   zip.addEventListener('keyup', event => {
-    inputVerify(event.target, inputRegex.credit.zip);
+    inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
 
   cvv.addEventListener('keyup', event => {
-    inputVerify(event.target, inputRegex.credit.cvv);
+    inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
   
   const paymentMenu = document.getElementById('payment');
@@ -263,15 +247,19 @@ addPaymentSection();
 
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
+  const checkErr = document.getElementById('checkErr');
   const inputs = document.querySelectorAll('input');
   inputs.forEach( input => {
-    if (input.style.borderColor === 'red') {
-      input.parentNode.scrollIntoView();
-      event.preventDefault();
-    } else if (input.type === 'checkbox' && totalCost === 0) {
-      input.parentNode.parentNode.scrollIntoView();
-      event.preventDefault();
+    
+    if (input.id !== 'other-title' && input.type !== 'checkbox') {
+      console.log(input.id);
+      if (!inputVerify(input, inputRegex[`${input.id}`]) || input.value.length === 0) {
+        input.parentNode.scrollIntoView();
+        event.preventDefault();
+      } else if (input.type === 'checkbox' && !checkBoxVerify(checkErr)) {
+        input.parentNode.parentNode.scrollIntoView();
+        event.preventDefault();
+      }
     }
   });
 });
-
