@@ -55,31 +55,27 @@ const inputRegex = {
 
 const inputVerify = (input, regex) => {
   const inputErr = document.querySelector(`.${input.id}`);
-  let verified = false;
   if (!regex.test(input.value) || input.value.length === 0) {
     inputErr.style.display = '';
     input.style.borderColor = 'red';
+    return false;
   } else {
     inputErr.style.display = 'none';
     input.style.borderColor = 'white';
-    verified =  true;
+    return true;
   }
-  return verified;
 };
 
 const checkBoxVerify = () => {
-  let verified = false;
   const err = document.getElementById('checkErr');
   if (totalCost !== 0) {
     err.style.display = 'none';
-    verified = true;
+    return true;
   } else {
     err.style.display = '';
+    return false;
   }
-  return verified;
 };
-
-const verifyAllInputs = inputs => inputs.every(inputVerify);
 
 const basicInfoSection = () => {
   const nameInput = document.getElementById('name');
@@ -120,6 +116,7 @@ const addTshirtSection = () => {
   const selectTheme = designMenu.firstElementChild;
   selectTheme.disabled = true;
   
+  const colorSection = document.querySelector('#colors-js-puns');
   const colorMenu = document.querySelector('#color');
   const colorOptions = colorMenu.options;
   
@@ -134,12 +131,12 @@ const addTshirtSection = () => {
       }
     };
 
-    colorMenu.style.display = 'none';
+    colorSection.style.display = 'none';
     
     // Extra Credit #1 - Hide the "Color" label 
     designMenu.addEventListener('change', (event) => {
-      // Shows menu when design theme is selected
-      colorMenu.style.display = '';
+      // Shows color section div when design theme is selected
+      colorSection.style.display = '';
       let userSelect = designOptions[event.target.selectedIndex];
       let designTheme = userSelect.innerText.substring(8, 14);
       showThemeColors(designTheme, colorOptions);
@@ -240,8 +237,8 @@ const addPaymentSection = () => {
   paymentSelectionMenu[0].disabled = true;
 
   // Sets Payment Div view based on default payment Selection
-  for (let i = 1; i < paymentDivs.length; i++) {
-    if (paymentDivs[paymentSelectionMenu.selectedIndex] === paymentDivs[i]) {
+  for (let i = 0; i < paymentDivs.length; i++) {
+    if (paymentSelectionMenu.selectedIndex === i) {
       paymentDivs[i].style.display = '';
     } else {
       paymentDivs[i].style.display = 'none';
@@ -250,16 +247,13 @@ const addPaymentSection = () => {
 
   // Displays payment sections based on payment option selected by user
   paymentSelectionMenu.addEventListener('change', (event) => {
-    if (event.target.selectedIndex === 1) {
-      creditSelected = true;
-    } else {
+    if (event.target.selectedIndex !== 1) {
       creditSelected = false;
-    }
+    } 
 
-    let paymentOption = event.target.value;
-    // Payment view is showed or hidden based on users selection
-    for (let i = 0; i < paymentDivs.length; i++) {
-      if (paymentOption.startsWith(paymentDivs[i].className.substr(0, 3))) {
+    // Payment view is displayed or hidden based on users selection
+    for (let i = 1; i < paymentDivs.length; i++) {
+      if (event.target.selectedIndex === i) {
         paymentDivs[i].style.display = '';
       } else {
         paymentDivs[i].style.display = 'none';
@@ -270,42 +264,25 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
-
-// Form Validation Messages
 form.addEventListener('submit', (event) => {
   const inputs = document.querySelectorAll('input');
-  inputs.forEach( input => {
-    if (creditSelected) {
-      // Verify all user input values
-      if (input.id !== 'other-title' && input.type !== 'checkbox') {
-        if (!inputVerify(input, inputRegex[`${input.id}`])) {
-          input.parentNode.scrollIntoView();
-          console.log(`Input Error is located here: ${input.id}`);
-          event.preventDefault();
-        }
-     }  
-     if (input.type === 'checkbox' && !checkBoxVerify()) {
-        console.log(`Activities Error Stops Submission.`);
-        input.parentNode.parentNode.scrollIntoView();
+  
+  for (let i = 0; i < inputs.length; i++) {
+    if (inputs[i].id === 'name' || inputs[i].id === 'mail') {
+      if (!inputVerify(inputs[i], inputRegex[`${inputs[i].id}`])) {
+        inputs[i].parentNode.scrollIntoView();
         event.preventDefault();
-     }
-     // Otherwise, verify all user input values EXCEPT credit-card values
-    } else {
-      if (input.id !== 'other-title' && input.type !== 'checkbox') {
-        if (input.parentNode.parentNode.id !== 'credit-card') {
-          if (!inputVerify(input, inputRegex[`${input.id}`])) {
-            input.parentNode.scrollIntoView();
-            console.log(`Input Error is located here: ${input.id}`);
-            event.preventDefault();
-          }
-        }
       }
-    if (input.type === 'checkbox' && !checkBoxVerify()) {
-      console.log(`Activities Error Stops Submission.`);
-      input.parentNode.parentNode.scrollIntoView();
-      event.preventDefault();
-   }
+    } else if (inputs[i].type === 'checkbox') {
+      if (!checkBoxVerify()) {
+        inputs[i].parentNode.parentNode.scrollIntoView();
+        event.preventDefault();
+      }
+    } else if (creditSelected && inputs[i].className === 'credit') {
+      if (!inputVerify(inputs[i], inputRegex[`${inputs[i].id}`])) {
+        inputs[i].parentNode.scrollIntoView();
+        event.preventDefault();
+      }
+    }
   }
-  });
 });
-
