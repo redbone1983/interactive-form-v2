@@ -1,6 +1,7 @@
 // Put the first field in the `focus` state
 // Use JavaScript to select the 'Name' input element and place focus on it. 
 const form = document.querySelector('form');
+let creditSelected = true;
 
 const errMsgs = {
   'name': 'Please enter your full name',
@@ -23,6 +24,9 @@ const addInputErrs = () => {
       errSpan.style.display = 'none';
       errSpan.textContent = errMsgs[`${input.id}`];
       input.parentNode.insertBefore(errSpan, input);
+      if (input.parentNode.parentNode.id === 'credit-card') {
+        input.className = 'credit';
+      }
     } 
   });
 };
@@ -36,9 +40,9 @@ const addCheckBoxErr = input => {
   checkErr.style.color = 'red';
   checkErr.style.fontSize = '16px';
   checkErr.style.paddingBottom = '15px';
-  checkErr.textContent = errMsgs[`${input.parentNode.className}`];
+  checkErr.textContent = errMsgs[`${input.className}`];
   checkErr.style.display = 'none';
-  return legend.parentNode.insertBefore(checkErr, legend);
+  legend.parentNode.insertBefore(checkErr, legend);
 };
 
 const inputRegex = {
@@ -49,31 +53,33 @@ const inputRegex = {
   'cvv': /^[0-9]{3}$/
 };
 
-
 const inputVerify = (input, regex) => {
   const inputErr = document.querySelector(`.${input.id}`);
+  let verified = false;
   if (!regex.test(input.value) || input.value.length === 0) {
-    // 'show' error message 
     inputErr.style.display = '';
     input.style.borderColor = 'red';
-    return false;
   } else {
-    // 'hide' error message 
     inputErr.style.display = 'none';
     input.style.borderColor = 'white';
-    return true;
+    verified =  true;
   }
+  return verified;
 };
 
-const checkBoxVerify = input => {
-  if (totalCost === 0) {
-    input.style.display = '';
-    return false;
+const checkBoxVerify = () => {
+  let verified = false;
+  const err = document.getElementById('checkErr');
+  if (totalCost !== 0) {
+    err.style.display = 'none';
+    verified = true;
   } else {
-    input.style.display = 'none';
-    return true;
+    err.style.display = '';
   }
+  return verified;
 };
+
+const verifyAllInputs = inputs => inputs.every(inputVerify);
 
 const basicInfoSection = () => {
   const nameInput = document.getElementById('name');
@@ -168,30 +174,35 @@ const tallyTotal = (clicked) => {
 };
 
 const addActivities = () => {
-  const activities = document.querySelector('.activities');
-  const checkboxes = document.querySelectorAll('.activities input');
+  const activitiesFieldset = document.querySelector('.activities');
+  const activitiesCheckboxes = document.querySelectorAll('.activities input');
 
-  let checkErr = addCheckBoxErr(activities);
+  // Adds Activities Checkbox Err to activitiesFieldset
+  addCheckBoxErr(activitiesFieldset);
 
-  activities.addEventListener('change', (event) => {
+  // Adds real-time varification to checkboxes
+  activitiesFieldset.addEventListener('change', (event) => {
     const clicked = event.target;
     const clickedDayAndTime = clicked.getAttribute('data-day-and-time');
+    
+    // Sums total fee of each activity selected
     tallyTotal(clicked);
 
-    for (let i = 0; i < checkboxes.length; i++) {
-      const checkboxDayAndTime = checkboxes[i].getAttribute('data-day-and-time');
+    for (let i = 0; i < activitiesCheckboxes .length; i++) {
+      const checkboxDayAndTime = activitiesCheckboxes[i].getAttribute('data-day-and-time');
     
-      if (clicked !== checkboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
+      if (clicked !== activitiesCheckboxes[i] && clickedDayAndTime === checkboxDayAndTime) {
         if (clicked.checked) {
-          checkboxes[i].disabled = true;
-          checkboxes[i].parentNode.style.textDecoration = "line-through";
+          activitiesCheckboxes[i].disabled = true;
+          activitiesCheckboxes[i].parentNode.style.textDecoration = "line-through";
         } else {
-          checkboxes[i].disabled = false;
-          checkboxes[i].parentNode.style.textDecoration = "none";
+          activitiesCheckboxes[i].disabled = false;
+          activitiesCheckboxes[i].parentNode.style.textDecoration = "none";
         }
       } 
     }
-    checkBoxVerify(checkErr);
+    // Shows Checkbox Err if Activity is selected and then deselected
+    checkBoxVerify();
   });
 };
 
@@ -203,6 +214,7 @@ const addPaymentSection = () => {
   const zip = document.getElementById('zip');
   const cvv = document.getElementById('cvv');
 
+  // Each ccField has its own Event listener that is activated once a user types into the field
   ccNum.addEventListener('keyup', event => {
     inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
@@ -215,24 +227,37 @@ const addPaymentSection = () => {
     inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
   
-  const paymentMenu = document.getElementById('payment');
+  // Selects payment selection menu
+  const paymentSelectionMenu = document.getElementById('payment');
+  
   // Selects credit card as default payment option
-  paymentMenu.selectedIndex = 1;
+  paymentSelectionMenu.selectedIndex = 1;
 
+  // Selects payment input divs
   const paymentDivs = document.querySelectorAll('fieldset > div');
-  paymentMenu[0].disabled = true;
 
+  // Disables 'Select Payment Method' option
+  paymentSelectionMenu[0].disabled = true;
+
+  // Sets Payment Div view based on default payment Selection
   for (let i = 1; i < paymentDivs.length; i++) {
-    if (paymentDivs[paymentMenu.selectedIndex] === paymentDivs[i]) {
+    if (paymentDivs[paymentSelectionMenu.selectedIndex] === paymentDivs[i]) {
       paymentDivs[i].style.display = '';
     } else {
       paymentDivs[i].style.display = 'none';
     }
   }
 
-  // Displays payment sections based on the payment option chosen in the select menu.
-  paymentMenu.addEventListener('change', (event) => {
+  // Displays payment sections based on payment option selected by user
+  paymentSelectionMenu.addEventListener('change', (event) => {
+    if (event.target.selectedIndex === 1) {
+      creditSelected = true;
+    } else {
+      creditSelected = false;
+    }
+
     let paymentOption = event.target.value;
+    // Payment view is showed or hidden based on users selection
     for (let i = 0; i < paymentDivs.length; i++) {
       if (paymentOption.startsWith(paymentDivs[i].className.substr(0, 3))) {
         paymentDivs[i].style.display = '';
@@ -245,21 +270,42 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
+
 // Form Validation Messages
 form.addEventListener('submit', (event) => {
-  const checkErr = document.getElementById('checkErr');
   const inputs = document.querySelectorAll('input');
   inputs.forEach( input => {
-    
-    if (input.id !== 'other-title' && input.type !== 'checkbox') {
-      console.log(input.id);
-      if (!inputVerify(input, inputRegex[`${input.id}`]) || input.value.length === 0) {
-        input.parentNode.scrollIntoView();
-        event.preventDefault();
-      } else if (input.type === 'checkbox' && !checkBoxVerify(checkErr)) {
+    if (creditSelected) {
+      // Verify all user input values
+      if (input.id !== 'other-title' && input.type !== 'checkbox') {
+        if (!inputVerify(input, inputRegex[`${input.id}`])) {
+          input.parentNode.scrollIntoView();
+          console.log(`Input Error is located here: ${input.id}`);
+          event.preventDefault();
+        }
+     }  
+     if (input.type === 'checkbox' && !checkBoxVerify()) {
+        console.log(`Activities Error Stops Submission.`);
         input.parentNode.parentNode.scrollIntoView();
         event.preventDefault();
+     }
+     // Otherwise, verify all user input values EXCEPT credit-card values
+    } else {
+      if (input.id !== 'other-title' && input.type !== 'checkbox') {
+        if (input.parentNode.parentNode.id !== 'credit-card') {
+          if (!inputVerify(input, inputRegex[`${input.id}`])) {
+            input.parentNode.scrollIntoView();
+            console.log(`Input Error is located here: ${input.id}`);
+            event.preventDefault();
+          }
+        }
       }
-    }
+    if (input.type === 'checkbox' && !checkBoxVerify()) {
+      console.log(`Activities Error Stops Submission.`);
+      input.parentNode.parentNode.scrollIntoView();
+      event.preventDefault();
+   }
+  }
   });
 });
+
