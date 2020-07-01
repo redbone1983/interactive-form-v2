@@ -55,13 +55,20 @@ const inputRegex = {
 
 const inputVerify = (input, regex) => {
   const inputErr = document.querySelector(`.${input.id}`);
-  if (!regex.test(input.value) || input.value.length === 0) {
+  if (input.value.length === 0) {
+    inputErr.textContent = `Input field is empty. Please enter your ${input.id}.`;
+    inputErr.style.display = '';
+    input.style.borderColor = 'red';
+    return false;
+  } else if (!regex.test(input.value)) {
+    inputErr.textContent = errMsgs[`${input.id}`];
     inputErr.style.display = '';
     input.style.borderColor = 'red';
     return false;
   } else {
     inputErr.style.display = 'none';
     input.style.borderColor = 'white';
+    // input.style.transition = 'border-color 500ms ease-in';
     return true;
   }
 };
@@ -213,6 +220,7 @@ const addPaymentSection = () => {
 
   // Each ccField has its own Event listener that is activated once a user types into the field
   ccNum.addEventListener('keyup', event => {
+    console.log(event.target.value);
     inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
  
