@@ -114,39 +114,62 @@ const basicInfoSection = () => {
 
 basicInfoSection();
 
+
 // T-shirt Info Section
 const addTshirtSection = () => {
-  const designMenu = document.querySelector('#design');
+  const designMenu = document.getElementById('design');
   const designOptions = designMenu.options;
   
   // Hides the “Select Theme” `option` element in the “Design” menu.
   const selectTheme = designMenu.firstElementChild;
   selectTheme.disabled = true;
   
-  const colorSection = document.querySelector('#colors-js-puns');
-  const colorMenu = document.querySelector('#color');
+  const colorSection = document.getElementById('colors-js-puns');
+  const colorMenu = document.getElementById('color');
   const colorOptions = colorMenu.options;
-  
-  const showThemeColors = (theme, colorOptions) => {
-      for (let i = 0; i < colorOptions.length; i++) {
-        if (colorOptions[i].innerText.includes(theme)) {
-          colorMenu.selectedIndex = i;
-          colorOptions[i].style.display = '';
-        } else {
-          colorOptions[i].style.display = 'none';
-        }
-      }
-    };
 
+  const showThemeColors = (show, hide) => {
+    for (let i = 0; i < hide.length; i++) {
+      hide[i].style.display = 'none';
+      show[i].style.display = '';
+    }
+  };
+
+  const getThemeColors = (designTheme, colorOptions) => {
+    let showColors = [];
+    let hideColors = [];
+    for (let i = 0; i < colorOptions.length; i++) {
+      if (colorOptions[i].innerText.includes(designTheme)) {
+        showColors.push(colorOptions[i]);
+      } else {
+        hideColors.push(colorOptions[i]);
+      }
+    }
+    showThemeColors(showColors, hideColors);
+  };
+
+    // Hides Color Menu for when page first loads
     colorSection.style.display = 'none';
     
     // Extra Credit #1 - Hide the "Color" label 
     designMenu.addEventListener('change', (event) => {
+      
       // Shows color section div when design theme is selected
       colorSection.style.display = '';
-      let userSelect = designOptions[event.target.selectedIndex];
-      let designTheme = userSelect.innerText.substring(8, 14);
-      showThemeColors(designTheme, colorOptions);
+      
+      let userSelect = event.target.selectedIndex;
+      let userTheme = designOptions[userSelect];
+      let designTheme = userTheme.innerText.substring(8, 14);
+      
+      getThemeColors(designTheme, colorOptions);
+      
+      if (userSelect === 1) {
+        firstColorIndex = 0;
+      } else if (userSelect === 2) {
+        firstColorIndex += 3;
+      }
+
+      colorMenu.selectedIndex = firstColorIndex;
     });
   };
 
@@ -220,7 +243,6 @@ const addPaymentSection = () => {
 
   // Each ccField has its own Event listener that is activated once a user types into the field
   ccNum.addEventListener('keyup', event => {
-    console.log(event.target.value);
     inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
  
@@ -234,6 +256,7 @@ const addPaymentSection = () => {
   
   // Selects payment selection menu
   const paymentSelectionMenu = document.getElementById('payment');
+ 
   
   // Selects credit card as default payment option
   paymentSelectionMenu.selectedIndex = 1;
@@ -245,7 +268,7 @@ const addPaymentSection = () => {
   paymentSelectionMenu[0].disabled = true;
 
   // Sets Payment Div view based on default payment Selection
-  for (let i = 0; i < paymentDivs.length; i++) {
+  for (let i = 1; i < paymentDivs.length; i++) {
     if (paymentSelectionMenu.selectedIndex === i) {
       paymentDivs[i].style.display = '';
     } else {
@@ -257,7 +280,9 @@ const addPaymentSection = () => {
   paymentSelectionMenu.addEventListener('change', (event) => {
     if (event.target.selectedIndex !== 1) {
       creditSelected = false;
-    } 
+    } else {
+      creditSelected = true;
+    }
 
     // Payment view is displayed or hidden based on users selection
     for (let i = 1; i < paymentDivs.length; i++) {
