@@ -1,8 +1,7 @@
-// Put the first field in the `focus` state
-// Use JavaScript to select the 'Name' input element and place focus on it. 
 const form = document.querySelector('form');
 let creditSelected = true;
 
+// Sets an object literal to store error msgs for each input field
 const errMsgs = {
   'name': 'Please enter your full name',
   'mail': 'Please enter a valid email',
@@ -12,7 +11,7 @@ const errMsgs = {
   'cvv': 'Please enter a valid 3 digit CVV'
 };
 
-// Add default Err message for each input func
+// Creates and Adds each err message above its text input in the DOM
 const addInputErrs = () => {
   const inputs = document.querySelectorAll('input');
   inputs.forEach( input => {
@@ -21,7 +20,10 @@ const addInputErrs = () => {
       errSpan.className = input.id;
       errSpan.style.color = 'red';
       errSpan.style.fontSize = '14px';
+
+      // Hides error message as default
       errSpan.style.display = 'none';
+      
       errSpan.textContent = errMsgs[`${input.id}`];
       input.parentNode.insertBefore(errSpan, input);
       if (input.parentNode.parentNode.id === 'credit-card') {
@@ -33,6 +35,7 @@ const addInputErrs = () => {
 
 addInputErrs();
 
+// Adds an error message above activities section in the DOM
 const addCheckBoxErr = input => {
   const legend = input.firstElementChild;
   const checkErr = document.createElement('p');
@@ -41,10 +44,14 @@ const addCheckBoxErr = input => {
   checkErr.style.fontSize = '16px';
   checkErr.style.paddingBottom = '15px';
   checkErr.textContent = errMsgs[`${input.className}`];
+
+  // Hides error message as default
   checkErr.style.display = 'none';
+  
   legend.parentNode.insertBefore(checkErr, legend);
 };
 
+// Sets an object literal to store regex condtions for each input error
 const inputRegex = {
   'name': /^[a-zA-Z]+ [a-zA-Z]+$/,
   'mail': /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -53,6 +60,7 @@ const inputRegex = {
   'cvv': /^[0-9]{3}$/
 };
 
+// Verifies and adds error or visual validation styling to input value
 const inputVerify = (input, regex) => {
   const inputErr = document.querySelector(`.${input.id}`);
   if (input.value.length === 0) {
@@ -68,11 +76,11 @@ const inputVerify = (input, regex) => {
   } else {
     inputErr.style.display = 'none';
     input.style.borderColor = 'white';
-    // input.style.transition = 'border-color 500ms ease-in';
     return true;
   }
 };
 
+// Verifies if activity event checkboxes have been selected
 const checkBoxVerify = () => {
   const err = document.getElementById('checkErr');
   if (totalCost !== 0) {
@@ -84,8 +92,11 @@ const checkBoxVerify = () => {
   }
 };
 
+// *** Adds Basic Info Section Validation Functions ***
 const basicInfoSection = () => {
+  // Selects and puts the name input field in the `focus` state
   const nameInput = document.getElementById('name');
+  
   nameInput.focus();
 
   nameInput.addEventListener('keyup', event => {
@@ -114,8 +125,7 @@ const basicInfoSection = () => {
 
 basicInfoSection();
 
-
-// T-shirt Info Section
+// *** Adds Tshirt Section Validation Functions ***
 const addTshirtSection = () => {
   const designMenu = document.getElementById('design');
   const designOptions = designMenu.options;
@@ -175,8 +185,8 @@ const addTshirtSection = () => {
 
 addTshirtSection();
 
+// Selects and adds total to Activities section in the DOM
 const addTotal = () => {
-  // Selects and adds tally to Activities section
   const activities = document.querySelector('.activities');
   const total = document.createElement('p');
   total.className = 'fees';
@@ -185,7 +195,10 @@ const addTotal = () => {
 
 addTotal();
 
+// Stores the total sum of Activity fees
 let totalCost = 0;
+
+// Tallys the sum of each clicked workshop event
 const tallyTotal = (clicked) => {
   const clickedCost = +clicked.getAttribute('data-cost');
   
@@ -200,6 +213,7 @@ const tallyTotal = (clicked) => {
   return totalCost;
 };
 
+// *** Adds Activities Section Validation Functions ***
 const addActivities = () => {
   const activitiesFieldset = document.querySelector('.activities');
   const activitiesCheckboxes = document.querySelectorAll('.activities input');
@@ -235,13 +249,15 @@ const addActivities = () => {
 
 addActivities();
 
-// Payment Section
+// *** Adds Payment Section Validation Functions ***
 const addPaymentSection = () => {
+  
+  // Selects each credit card input element
   const ccNum = document.getElementById('cc-num');
   const zip = document.getElementById('zip');
   const cvv = document.getElementById('cvv');
 
-  // Each ccField has its own Event listener that is activated once a user types into the field
+  // Real-time credit-card input field validation
   ccNum.addEventListener('keyup', event => {
     inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
@@ -254,37 +270,37 @@ const addPaymentSection = () => {
     inputVerify(event.target, inputRegex[`${event.target.id}`]);
   });
   
-  // Selects payment selection menu
-  const paymentSelectionMenu = document.getElementById('payment');
+  // Selects payment menu
+  const paymentMenu = document.getElementById('payment');
  
-  
   // Selects credit card as default payment option
-  paymentSelectionMenu.selectedIndex = 1;
+  paymentMenu.selectedIndex = 1;
 
-  // Selects payment input divs
+  // Selects payment form divs
   const paymentDivs = document.querySelectorAll('fieldset > div');
 
   // Disables 'Select Payment Method' option
-  paymentSelectionMenu[0].disabled = true;
+  paymentMenu[0].disabled = true;
 
-  // Sets Payment Div view based on default payment Selection
+  // Sets payment form view based on default payment selection
   for (let i = 1; i < paymentDivs.length; i++) {
-    if (paymentSelectionMenu.selectedIndex === i) {
+    if (paymentMenu.selectedIndex === i) {
       paymentDivs[i].style.display = '';
     } else {
       paymentDivs[i].style.display = 'none';
     }
   }
 
-  // Displays payment sections based on payment option selected by user
-  paymentSelectionMenu.addEventListener('change', (event) => {
+  // Displays payment form view in real-time based on users selection
+  paymentMenu.addEventListener('change', (event) => {
+
+    // Toggles global boolean variable based on payment selection
     if (event.target.selectedIndex !== 1) {
       creditSelected = false;
     } else {
       creditSelected = true;
     }
 
-    // Payment view is displayed or hidden based on users selection
     for (let i = 1; i < paymentDivs.length; i++) {
       if (event.target.selectedIndex === i) {
         paymentDivs[i].style.display = '';
@@ -297,6 +313,7 @@ const addPaymentSection = () => {
 
 addPaymentSection();
 
+// Submit Form Validation
 form.addEventListener('submit', (event) => {
   const inputs = document.querySelectorAll('input');
   
