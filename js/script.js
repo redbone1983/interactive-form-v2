@@ -47,7 +47,7 @@ const addCheckBoxErr = input => {
 
   // Hides error message as default
   checkErr.style.display = 'none';
-  
+
   legend.parentNode.insertBefore(checkErr, legend);
 };
 
@@ -127,61 +127,77 @@ basicInfoSection();
 
 // *** Adds Tshirt Section Validation Functions ***
 const addTshirtSection = () => {
+  // Object stores color themes organized by design theme
+  const colorThemes = {};
   const designMenu = document.getElementById('design');
   const designOptions = designMenu.options;
-  
-  // Hides the “Select Theme” `option` element in the “Design” menu.
+
+  // Disables the “Select Theme” `option` element in the “Design” menu.
   const selectTheme = designMenu.firstElementChild;
   selectTheme.disabled = true;
   
-  const colorSection = document.getElementById('colors-js-puns');
+  const parentColorDiv = document.getElementById('colors-js-puns');
   const colorMenu = document.getElementById('color');
-  const colorOptions = colorMenu.options;
+  const colorElements = colorMenu.options;
 
-  const showThemeColors = (show, hide) => {
-    for (let i = 0; i < hide.length; i++) {
-      hide[i].style.display = 'none';
-      show[i].style.display = '';
+  // When page loads, t-shirt colors are organzed by design theme
+  const getTshirtThemes = () => {
+    for (let i = 1; i < designOptions.length; i++) {
+      let tshirtTheme = designOptions[i].innerText.substring(8, 14);
+      if (!Object.keys(colorThemes).includes(tshirtTheme)) {
+        colorThemes[`${tshirtTheme}`] = [];
+      } 
+    }
+    return colorThemes;
+  };
+
+  // Color elements textContent is shortened and pushed colorThemes array
+  const getTshirtColors = colorThemes => {
+    for (let theme in colorThemes) {
+      for (let i = 0; i < colorElements.length; i++) {
+        let endIndex = colorElements[i].textContent.indexOf('(');
+        let justColor = colorElements[i].textContent.slice(0, endIndex - 1);
+        if (colorElements[i].textContent.includes(theme)) {
+          colorElements[i].textContent = justColor;
+          colorThemes[theme].push(colorElements[i]);
+        }
+      }
+    }
+    return colorThemes;
+  };
+
+  getTshirtColors(getTshirtThemes());
+
+  const showTshirtColors = userTheme => {
+    for (let theme in colorThemes) {
+      colorThemes[theme].forEach( color => {
+        if (userTheme === theme) {
+          color.style.display = '';
+        } else {
+          color.style.display = 'none';
+        }
+      });
     }
   };
 
-  const getThemeColors = (designTheme, colorOptions) => {
-    let showColors = [];
-    let hideColors = [];
-    for (let i = 0; i < colorOptions.length; i++) {
-      if (colorOptions[i].innerText.includes(designTheme)) {
-        showColors.push(colorOptions[i]);
-      } else {
-        hideColors.push(colorOptions[i]);
-      }
+  // Extra Credit #1 - Hide the "Color" label 
+  parentColorDiv.style.display = 'none';
+  
+  // Changes tshirt color options menu based on user's selected Design theme
+  designMenu.addEventListener('change', (event) => {
+    parentColorDiv.style.display = '';
+    let userSelect = event.target.selectedIndex;
+    let themeName = designOptions[userSelect];
+    let userTheme = themeName.innerText.substring(8, 14);
+    showTshirtColors(userTheme);
+    if (event.target.selectedIndex === 1) {
+      firstColorIndex = 0;
+    } else if (event.target.selectedIndex === 2) {
+      firstColorIndex = 3;
     }
-    showThemeColors(showColors, hideColors);
-  };
-
-    // Hides Color Menu for when page first loads
-    colorSection.style.display = 'none';
-    
-    // Extra Credit #1 - Hide the "Color" label 
-    designMenu.addEventListener('change', (event) => {
-      
-      // Shows color section div when design theme is selected
-      colorSection.style.display = '';
-      
-      let userSelect = event.target.selectedIndex;
-      let userTheme = designOptions[userSelect];
-      let designTheme = userTheme.innerText.substring(8, 14);
-      
-      getThemeColors(designTheme, colorOptions);
-      
-      if (userSelect === 1) {
-        firstColorIndex = 0;
-      } else if (userSelect === 2) {
-        firstColorIndex += 3;
-      }
-
-      colorMenu.selectedIndex = firstColorIndex;
-    });
-  };
+    colorMenu.selectedIndex = firstColorIndex;
+  });
+};
 
 addTshirtSection();
 
