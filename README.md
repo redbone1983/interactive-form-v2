@@ -15,6 +15,8 @@
 ##### On Form Submission Validation
 
 - Each time a user submits the form by clicking the "Register button".
+
 - If the input value is *INVALID* or *EMPTY*, its corresponding error message is set to *SHOW* on the webpage and form submission is prevented.
+
 - If the input value is *VALID*, its corresponding error message is set to *NOT SHOW* on the webpage and form submission is granted.
 
