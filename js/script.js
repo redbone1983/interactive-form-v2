@@ -151,7 +151,7 @@ const addTshirtSection = () => {
     return colorThemes;
   };
 
-  // Color elements textContent is shortened and pushed colorThemes array
+  // Color elements text is shortened and pushed to colorThemes array value
   const getTshirtColors = colorThemes => {
     for (let theme in colorThemes) {
       for (let i = 0; i < colorElements.length; i++) {
@@ -189,10 +189,13 @@ const addTshirtSection = () => {
     let userSelect = event.target.selectedIndex;
     let themeName = designOptions[userSelect];
     let userTheme = themeName.innerText.substring(8, 14);
+    
     showTshirtColors(userTheme);
-    if (event.target.selectedIndex === 1) {
+    
+    // Updates the “Color” field to the first available color
+    if (userSelect === 1) {
       firstColorIndex = 0;
-    } else if (event.target.selectedIndex === 2) {
+    } else if (userSelect === 2) {
       firstColorIndex = 3;
     }
     colorMenu.selectedIndex = firstColorIndex;
